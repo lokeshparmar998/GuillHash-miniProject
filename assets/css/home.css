@@ -1,0 +1,30 @@
+body{
+    font-family: arial;
+    color: #333;
+    margin: 0;
+    width: 500px;
+    margin: 20px auto;
+}
+ul{
+    
+    list-style: none;
+}
+.options a{
+    float:right;
+    padding: 10px;
+    margin: 10px;
+    font-size: 15px;
+    border: #333 solid 1px;
+    border-radius: 10px;
+}
+a{
+    text-decoration: none;
+}
+.option a:after{
+    content:"";
+    display: block;
+    clear:both;
+}
+.about{
+    display: block;
+}
