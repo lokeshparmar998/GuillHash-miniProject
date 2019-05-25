@@ -7,6 +7,8 @@ const user = require('./model/schema')
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const multer = require('multer');
+const middelware =require('./checkAuth')
+let config = require('./config');
 //mongoose configuration
 mongoose.connect('mongodb://localhost/QuillDate', {useNewUrlParser: true});
 var db = mongoose.connection;
@@ -64,11 +66,11 @@ app.get('/signup',(req,res)=>{
     res.render('signup')
 })
  
-app.get('/user/main',(req,res)=>{
-   
+app.get('/user/main',middelware,(req,res)=>{
+   res.send('hello from main');
 })
 
-app.get('/user/profile',(req,res)=>{
+app.get('/user/profile',middelware,(req,res)=>{
     res.render('profile')
 })
 
@@ -109,13 +111,13 @@ app.post('/signup',function(req,res,err){
     user.findOne({ email: req.body.email })
       .exec()
       .then(User => {
-        if (User.length < 1) {
+      /*  if (User.length < 1) {
             console.log('fail login 1')
           return res.status(401).json({
             message: "Auth failed"
           });
-        }
-        bcrypt.compare(req.body.password, User[0].password, (err, result) => {
+        }*/
+        bcrypt.compare(req.body.password, User.password, (err, result) => {
           if (err) {
               console.log('fail login 2')
             return res.status(401).json({
@@ -126,14 +128,18 @@ app.post('/signup',function(req,res,err){
               console.log("yey its a login")
             const token = jwt.sign(
               {
-                email: User[0].email,
-                userId:User[0]._id
+                email: User.email,
+                userId:User._id
               },
-            secret,{
+              config.secret,{
                 expiresIn: "1h"
             }
             );
-            return res.render('main');
+            res.json({
+                success: true,
+                message: 'Enjoy your token!',
+                token: token
+              });
           }
           res.status(401).json({
             message: "Auth failed"
@@ -148,7 +154,7 @@ app.post('/signup',function(req,res,err){
       });
   });
 
-  app.post('/user/profile',upload.single('myImage'),(req,res)=>{
+  app.post('/user/profile',middelware,upload.single('myImage'),(req,res)=>{
       console.log(res.file)
   })
 // routes end here
